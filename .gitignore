@@ -1,0 +1,6 @@
+*.pyc
+*.pyo
+venv
+*.db
+*.pem
+instance
