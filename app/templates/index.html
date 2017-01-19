@@ -83,4 +83,9 @@
 </div>
 <div id="result">
 </div>
+<div>
+  {% for blog in blogs %}
+  <div><a href="{{ blog.url }}">{{ blog.name }}</a></div>
+  {% endfor %}
+</div>
 {% endblock %}
