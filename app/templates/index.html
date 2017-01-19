@@ -1,51 +1,86 @@
 {% extends "base.html" %}
 
 {% block head %}
-<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE"></script>
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
 <script type="text/javascript">
-$(function() {
-  var map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(37.5666805, 126.9784147),
-    zoom: 5,
-    mapTypeId: naver.maps.MapTypeId.TERRAIN
-  });
 
-  var infowindow = new naver.maps.InfoWindow();
+  $(function() {
+    function moveMap(item) {
+      var center = new naver.maps.Point($(item).parent().attr("x"), $(item).parent().attr("y"));
+      map.setCenter(center);
+      infowindow.setContent('<div style="padding:20px;">' + $(item).text() + '</div>');
+      infowindow.open(map, center);
+    }
+    function search(query) {
+      $.getJSON("{{url_for('search')}}",{
+        query: query,
+      }, function(data) {
+        var html = "";
+        for(var i = 0; i < data.items.length; i++){
+          html += "<div x=" + data.items[i].mapx + " y=" + data.items[i].mapy + ">";
+          html += "<a>" + data.items[i].title + "</a><small>" + data.items[i].roadAddress + "</small>"
+          html += "</div>";
+        }
+        $('#result').html(html);
+        $('#result>div>a').on('click', function(e) {
+          e.preventDefault();
+          moveMap($(this));
+        });
+        if(data.items.length > 0){
+          moveMap($('#result>div>a')[0]);
+        }
+      });
+    }
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
-  } else {
-    var center = map.getCenter();
-    infowindow.setContent('<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5>'+ "latitude: "+ center.lat() +"<br />longitude: "+ center.lng() +'</div>');
-    infowindow.open(map, center);
-  }
+    $('#query').on('keydown', function(e) {
+      var keyCode = e.which;
+      if (keyCode === 13) { // Enter Key
+        search($('#query').val());
+      }
+    });
+    $('#submit').on('click', function(e) {
+      e.preventDefault();
+      search($('#query').val());
+    });
 
-  function onSuccessGeolocation(position) {
-    var location = new naver.maps.LatLng(position.coords.latitude,
-                                         position.coords.longitude);
+    var map = new naver.maps.Map('map', {
+      center: new naver.maps.Point(316281, 545370),
+      zoom: 11,
+      mapTypes: new naver.maps.MapTypeRegistry({
+        'normal': naver.maps.NaverMapTypeOption.getNormalMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'terrain': naver.maps.NaverMapTypeOption.getTerrainMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'satellite': naver.maps.NaverMapTypeOption.getSatelliteMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'hybrid': naver.maps.NaverMapTypeOption.getHybridMap({
+          projection: naver.maps.TM128Coord
+        })
+      }),
+      mapTypeId: naver.maps.MapTypeId.TERRAIN
+    });
 
-    map.setCenter(location); // 얻은 좌표를 지도의 중심으로 설정합니다.
-    map.setZoom(10); // 지도의 줌 레벨을 변경합니다.
+    var infowindow = new naver.maps.InfoWindow();
 
-    infowindow.setContent('<div style="padding:20px;">' +
-        'latitude: '+ location.lat() +'<br />' +
-        'longitude: '+ location.lng() +'</div>');
-
-    infowindow.open(map, location);
-  }
-
-  function onErrorGeolocation() {
-    var center = map.getCenter();
-
-    infowindow.setContent('<div style="padding:20px;">' +
-        '<h5 style="margin-bottom:5px;color:#f00;">Geolocation failed!</h5>'+ "latitude: "+ center.lat() +"<br />longitude: "+ center.lng() +'</div>');
-
-    infowindow.open(map, center);
-  }
 });
 </script>
 {% endblock %}
 
 {% block content %}
-<div id="map" style="width:auto;height:300px;border:1px solid #000;"></div>
+<style type="text/css">
+  .search { position:absolute;z-index:1000;top:20px;left:20px; }
+  .search #query { width:150px;height:20px;line-height:20px;border:solid 1px #555;padding:5px;font-size:12px;box-sizing:content-box; }
+  .search #submit { height:30px;line-height:30px;padding:0 10px;font-size:12px;border:solid 1px #555;border-radius:3px;cursor:pointer;box-sizing:content-box; }
+</style>
+<div id="map" style="width:100%;height:600px;">
+  <div class="search" style="">
+    <input id="query" type="text" placeholder="검색어" />
+    <input id="submit" type="button" value="검색" />
+  </div>
+</div>
+<div id="result">
+</div>
 {% endblock %}
