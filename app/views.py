@@ -35,6 +35,23 @@ def add():
     return render_template('add.html', forms=forms)
 
 
+@app.route('/delete/<id>')
+def delete(id):
+    redirect_to = request.referrer or url_for('index')
+
+    try:
+        id = int(id)
+    except ValueError:
+        return redirect(redirect_to)
+
+    p = Place.query.get(id)
+    if p is not None:
+        db.session.delete(p)
+        db.session.commit()
+
+    return redirect(redirect_to)
+
+
 @app.route('/search')
 def search():
     client_id = 'WuHk4eJpsqDQ5tLWjYbi'
