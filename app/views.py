@@ -33,7 +33,7 @@ def add():
 
         p = Place(forms['place'].name.data, forms['place'].phone.data,
                   forms['place'].address.data,
-                  forms['place'].x.data, forms['place'].y, c)
+                  forms['place'].x.data, forms['place'].y.data, c)
         db.session.add(p)
         db.session.commit()
         return redirect(url_for('add'))
