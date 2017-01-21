@@ -7,9 +7,14 @@ import requests
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+
+@app.route('/list')
+def list():
     blogs = Blog.query.all()
     places = Place.query.all()
-    return render_template('index.html', blogs=blogs, places=places)
+    return render_template('list.html', blogs=blogs, places=places)
 
 
 @app.route('/add', methods=['GET', 'POST'])
