@@ -1,6 +1,55 @@
 {% extends "base.html" %}
 
 {% block head %}
+<style type="text/css">
+  .place:before {
+    display:inline-block;
+    content:'';
+    width: 24px;
+    height: 37px;
+    background-image: url({{url_for('static', filename='pins.png')}});
+  }
+  #place1:before { background-position-x: -29px; background-position-y: 0px; }
+  #place2:before { background-position-x: -58px; background-position-y: 0px; }
+  #place3:before { background-position-x: -87px; background-position-y: 0px; }
+  #place4:before { background-position-x: -116px; background-position-y: 0px; }
+  #place5:before { background-position-x: -145px; background-position-y: 0px; }
+  #place6:before { background-position-x: -174px; background-position-y: 0px; }
+  #place7:before { background-position-x: -203px; background-position-y: 0px; }
+  #place8:before { background-position-x: -232px; background-position-y: 0px; }
+  #place9:before { background-position-x: -261px; background-position-y: 0px; }
+  #place10:before { background-position-x: 0px; background-position-y: -50px; }
+  #place11:before { background-position-x: -29px; background-position-y: -50px; }
+  #place12:before { background-position-x: -58px; background-position-y: -50px; }
+  #place13:before { background-position-x: -87px; background-position-y: -50px; }
+  #place14:before { background-position-x: -116px; background-position-y: -50px; }
+  #place15:before { background-position-x: -145px; background-position-y: -50px; }
+  #place16:before { background-position-x: -174px; background-position-y: -50px; }
+  #place17:before { background-position-x: -203px; background-position-y: -50px; }
+  #place18:before { background-position-x: -232px; background-position-y: -50px; }
+  #place19:before { background-position-x: -261px; background-position-y: -50px; }
+  #place20:before { background-position-x: 0px; background-position-y: -100px; }
+  #place21:before { background-position-x: -29px; background-position-y: -100px; }
+  #place22:before { background-position-x: -58px; background-position-y: -100px; }
+  #place23:before { background-position-x: -87px; background-position-y: -100px; }
+  #place24:before { background-position-x: -116px; background-position-y: -100px; }
+  #place25:before { background-position-x: -145px; background-position-y: -100px; }
+  #place26:before { background-position-x: -174px; background-position-y: -100px; }
+  #place27:before { background-position-x: -203px; background-position-y: -100px; }
+  #place28:before { background-position-x: -232px; background-position-y: -100px; }
+  #place29:before { background-position-x: -261px; background-position-y: -100px; }
+  .place {
+    margin: 3px;
+    padding: 4px 3px 0px;
+  }
+  .place>p {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -28px;
+    margin-bottom: 0px;
+    padding-left: 5px;
+  }
+</style>
 <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
 <script type="text/javascript">
 
@@ -65,6 +114,29 @@ $(function() {
 
   var markerList = [];
 
+  function addMarker(place, x, y) {
+    var icon = {
+      url: "{{url_for('static', filename='pins.png')}}",
+      size: new naver.maps.Size(24, 37),
+      anchor: new naver.maps.Point(12, 37),
+      origin: new naver.maps.Point(x, y)
+    }
+    var marker = new naver.maps.Marker({
+      position: new naver.maps.Point(place.x, place.y),
+      map: map,
+      icon: icon
+    });
+    marker.addListener('mouseover', onMouseOver);
+    marker.addListener('mouseout', onMouseOut);
+
+    markerList.push(marker);
+  }
+
+  function addPlace(place, x, y, i) {
+    var p = $('<button id="place' + i + '" class="place btn btn-default"><p>' + place.name + '</p></button>');
+    $("#list").append(p);
+  }
+
   function getPlaces(bounds) {
     var pMin = bounds.getMin();
     var pMax = bounds.getMax();
@@ -82,21 +154,9 @@ $(function() {
       markerList = [];
 
       for (var i = 0; i < places.length; i++) {
-        var icon = {
-          url: "{{url_for('static', filename='pins.png')}}",
-          size: new naver.maps.Size(24, 37),
-          anchor: new naver.maps.Point(12, 37),
-          origin: new naver.maps.Point(i%10*29, Math.floor(i/10)*50)
-        }
-        var marker = new naver.maps.Marker({
-          position: new naver.maps.Point(places[i].x, places[i].y),
-          map: map,
-          icon: icon
-        });
-        marker.addListener('mouseover', onMouseOver);
-        marker.addListener('mouseout', onMouseOut);
-
-        markerList.push(marker);
+        var x = i%10*29, y = Math.floor(i/10)*50;
+        addMarker(places[i], x, y);
+        addPlace(places[i], x, y, i);
       }
     });
   }
