@@ -26,10 +26,9 @@ def add():
             c = Category(forms['place'].category.data)
             db.session.add(c)
 
-        x = 316281
-        y = 545370
         p = Place(forms['place'].name.data, forms['place'].phone.data,
-                  forms['place'].address.data, x, y, c)
+                  forms['place'].address.data,
+                  forms['place'].x.data, forms['place'].y, c)
         db.session.add(p)
         db.session.commit()
         return redirect(url_for('add'))
