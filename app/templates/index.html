@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
+<script type="text/javascript">
+
+$(function() {
+  var map = new naver.maps.Map('map', {
+    center: new naver.maps.Point(316281, 545370),
+    zoom: 11,
+    mapTypes: new naver.maps.MapTypeRegistry({
+      'normal': naver.maps.NaverMapTypeOption.getNormalMap({
+        projection: naver.maps.TM128Coord
+      }),
+      'terrain': naver.maps.NaverMapTypeOption.getTerrainMap({
+        projection: naver.maps.TM128Coord
+      }),
+      'satellite': naver.maps.NaverMapTypeOption.getSatelliteMap({
+        projection: naver.maps.TM128Coord
+      }),
+      'hybrid': naver.maps.NaverMapTypeOption.getHybridMap({
+        projection: naver.maps.TM128Coord
+      })
+    }),
+    mapTypeId: naver.maps.MapTypeId.TERRAIN
+  });
+
+  var infowindow = new naver.maps.InfoWindow();
+});
+</script>
+{% endblock %}
+{% block content %}
+<div id="map" style="width:100%;height:500px;"></div>
+{% endblock %}
