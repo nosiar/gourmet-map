@@ -15,14 +15,18 @@ class Category(db.Model):
 class Place(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
+    phone = db.Column(db.String(15))
+    address = db.Column(db.String(100))
+    x = db.Column(db.Integer)
+    y = db.Column(db.Integer)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category',
                                backref=db.backref('places', lazy='dynamic'))
-    x = db.Column(db.Integer)
-    y = db.Column(db.Integer)
 
-    def __init__(self, name, x, y, category=None):
+    def __init__(self, name, phone, address, x, y, category):
         self.name = name
+        self.phone = phone
+        self.address = address
         self.x = x
         self.y = y
         self.category = category
