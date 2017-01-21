@@ -26,12 +26,7 @@ $(function() {
   });
 
   var infowindow = new naver.maps.InfoWindow();
-});
-</script>
-{% endblock %}
-{% block content %}
-<div id="map" style="width:100%;height:500px;"></div>
-{% endblock %}
+
   function msg(str) {
     var center = map.getCenter();
     infowindow.setContent('<div style="padding:20px;">' + str +'</div>');
@@ -64,3 +59,82 @@ $(function() {
   function onErrorGeolocation() {
     err("Geolocation failed!");
   }
+
+  var markerIconPosition = {
+  };
+
+  var markerList = [];
+
+  function getPlaces(bounds) {
+    var pMin = bounds.getMin();
+    var pMax = bounds.getMax();
+    $.getJSON("{{url_for('get_places')}}", {
+      xmin: pMin.x,
+      xmax: pMax.x,
+      ymin: pMin.y,
+      ymax: pMax.y,
+    }, function(data) {
+      var places = data.data;
+
+      for (var i = 0; i < markerList.length; i++) {
+        markerList[i].setMap(null);
+      }
+      markerList = [];
+
+      for (var i = 0; i < places.length; i++) {
+        var icon = {
+          url: "{{url_for('static', filename='pins.png')}}",
+          size: new naver.maps.Size(24, 37),
+          anchor: new naver.maps.Point(12, 37),
+          origin: new naver.maps.Point(i%10*29, Math.floor(i/10)*50)
+        }
+        var marker = new naver.maps.Marker({
+          position: new naver.maps.Point(places[i].x, places[i].y),
+          map: map,
+          icon: icon
+        });
+        marker.addListener('mouseover', onMouseOver);
+        marker.addListener('mouseout', onMouseOut);
+
+        markerList.push(marker);
+      }
+    });
+  }
+
+  function onMouseOver(e) {
+    var marker = e.overlay;
+    marker.setIcon({
+      url: "{{url_for('static', filename='pins_over.png')}}",
+      size: new naver.maps.Size(24, 37),
+      anchor: new naver.maps.Point(12, 37),
+      origin: marker.icon.origin
+    });
+  }
+
+  function onMouseOut(e) {
+    var marker = e.overlay;
+    marker.setIcon({
+      url: "{{url_for('static', filename='pins.png')}}",
+      size: new naver.maps.Size(24, 37),
+      anchor: new naver.maps.Point(12, 37),
+      origin: marker.icon.origin
+    });
+  }
+
+  getPlaces(map.getBounds());
+
+  naver.maps.Event.addListener(map, 'zoom_changed', function(zoom) {
+    //getPlaces(map.getBounds());
+  });
+
+  naver.maps.Event.addListener(map, 'bounds_changed', function(bounds) {
+    //getPlaces(bounds);
+  });
+});
+</script>
+{% endblock %}
+{% block content %}
+<div id="map" style="width:100%;height:500px;"></div>
+<div id="list">
+</div>
+{% endblock %}
