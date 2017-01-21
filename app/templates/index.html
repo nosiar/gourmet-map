@@ -32,3 +32,35 @@ $(function() {
 {% block content %}
 <div id="map" style="width:100%;height:500px;"></div>
 {% endblock %}
+  function msg(str) {
+    var center = map.getCenter();
+    infowindow.setContent('<div style="padding:20px;">' + str +'</div>');
+    infowindow.open(map, center);
+  }
+
+  function err(str) {
+    msg('<h5 style="margin-bottom:5px;color:#f00;">' + str + '</h5>');
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(onSuccessGeolocation, onErrorGeolocation);
+  } else {
+    err("Geolocation not supported");
+  }
+
+  function onSuccessGeolocation(position) {
+    var location = new naver.maps.LatLng(position.coords.latitude,
+                                         position.coords.longitude);
+    location = naver.maps.TransCoord.fromLatLngToTM128(location);
+
+    map.setCenter(location);
+
+    var marker = new naver.maps.Marker({
+      position: location,
+      map: map
+    });
+  }
+
+  function onErrorGeolocation() {
+    err("Geolocation failed!");
+  }
