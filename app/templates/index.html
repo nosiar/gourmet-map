@@ -97,9 +97,11 @@ $(function() {
     err("Geolocation not supported");
   }
 
+  var location = map.getCenter();
+
   function onSuccessGeolocation(position) {
-    var location = new naver.maps.LatLng(position.coords.latitude,
-                                         position.coords.longitude);
+    location = new naver.maps.LatLng(position.coords.latitude,
+                                     position.coords.longitude);
     location = naver.maps.TransCoord.fromLatLngToTM128(location);
 
     map.setCenter(location);
@@ -108,6 +110,8 @@ $(function() {
       position: location,
       map: map
     });
+
+    getPlaces(map.getBounds());
   }
 
   function onErrorGeolocation() {
@@ -146,10 +150,12 @@ $(function() {
     var pMin = bounds.getMin();
     var pMax = bounds.getMax();
     $.getJSON("{{url_for('get_places')}}", {
-      xmin: pMin.x,
-      xmax: pMax.x,
-      ymin: pMin.y,
-      ymax: pMax.y,
+      xMin: pMin.x,
+      xMin: pMin.y,
+      xMax: pMax.x,
+      yMax: pMax.y,
+      xMine: location.x,
+      yMine: location.y
     }, function(data) {
       var places = data.data;
 
@@ -185,8 +191,6 @@ $(function() {
       origin: marker.icon.origin
     });
   }
-
-  getPlaces(map.getBounds());
 
   naver.maps.Event.addListener(map, 'zoom_changed', function(zoom) {
     //getPlaces(map.getBounds());

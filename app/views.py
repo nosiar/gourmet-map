@@ -1,4 +1,5 @@
 from flask import render_template, request, redirect, url_for, jsonify
+from sqlalchemy import desc
 from . import app, db
 from .models import Blog, Place, Category
 from .forms import BlogAddForm, PlaceAddForm
@@ -59,11 +60,13 @@ def delete(id):
 
 @app.route('/json/places')
 def get_places():
-    x_min = request.args.get('xmin') or ''
-    x_max = request.args.get('xmax') or ''
-    y_min = request.args.get('ymin') or ''
-    y_max = request.args.get('ymax') or ''
-    places = Place.query.all()
+    x_min = request.args.get('xMin') or ''
+    y_min = request.args.get('yMin') or ''
+    x_max = request.args.get('xMax') or ''
+    y_max = request.args.get('yMax') or ''
+    x_mine = request.args.get('xMine') or ''
+    y_mine = request.args.get('yMine') or ''
+    places = Place.query.order_by(Place.dist(x_mine, y_mine)).all()
     #places = Place.query.filter(x_min <= Place.x and Place.x <= x_max and
     #                            y_min <= Place.y and Place.y <= y_max).all()
     return jsonify(data=[p.serialize for p in places])

@@ -1,3 +1,4 @@
+from sqlalchemy.ext.hybrid import hybrid_method
 from . import db
 
 
@@ -45,6 +46,10 @@ class Place(db.Model):
             'y': self.y,
             'category': self.category.name
         }
+
+    @hybrid_method
+    def dist(self, x, y):
+        return (self.x - x) * (self.x - x) + (self.y - y) * (self.y - y)
 
 
 class Blog(db.Model):
