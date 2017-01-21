@@ -1,25 +1,39 @@
 from flask import render_template, request, redirect, url_for
 from . import app, db
-from .models import Blog
-from .forms import BlogAddForm
+from .models import Blog, Place, Category
+from .forms import BlogAddForm, PlaceAddForm
 import requests
 
 
 @app.route('/')
 def index():
     blogs = Blog.query.all()
-    return render_template('index.html', blogs=blogs)
+    places = Place.query.all()
+    return render_template('index.html', blogs=blogs, places=places)
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    form = BlogAddForm()
-    if form.validate_on_submit():
-        b = Blog(form.name.data, form.url.data)
+    forms = {'blog': BlogAddForm(), 'place': PlaceAddForm()}
+    if forms['blog'].validate_on_submit():
+        b = Blog(forms['blog'].blog_name.data, forms['blog'].url.data)
         db.session.add(b)
         db.session.commit()
         return redirect(url_for('add'))
-    return render_template('add.html', form=form)
+    elif forms['place'].validate_on_submit():
+        c = Category.query.filter_by(name=forms['place'].category.data).first()
+        if c is None:
+            c = Category(forms['place'].category.data)
+            db.session.add(c)
+
+        x = 316281
+        y = 545370
+        p = Place(forms['place'].name.data, forms['place'].phone.data,
+                  forms['place'].address.data, x, y, c)
+        db.session.add(p)
+        db.session.commit()
+        return redirect(url_for('add'))
+    return render_template('add.html', forms=forms)
 
 
 @app.route('/search')

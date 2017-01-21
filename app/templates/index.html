@@ -1,91 +1,12 @@
 {% extends "base.html" %}
 
-{% block head %}
-<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
-<script type="text/javascript">
-
-  $(function() {
-    function moveMap(item) {
-      var center = new naver.maps.Point($(item).parent().attr("x"), $(item).parent().attr("y"));
-      map.setCenter(center);
-      infowindow.setContent('<div style="padding:20px;">' + $(item).text() + '</div>');
-      infowindow.open(map, center);
-    }
-    function search(query) {
-      $.getJSON("{{url_for('search')}}",{
-        query: query,
-      }, function(data) {
-        var html = "";
-        for(var i = 0; i < data.items.length; i++){
-          html += "<div x=" + data.items[i].mapx + " y=" + data.items[i].mapy + ">";
-          html += "<a>" + data.items[i].title + "</a><small>" + data.items[i].roadAddress + "</small>"
-          html += "</div>";
-        }
-        $('#result').html(html);
-        $('#result>div>a').on('click', function(e) {
-          e.preventDefault();
-          moveMap($(this));
-        });
-        if(data.items.length > 0){
-          moveMap($('#result>div>a')[0]);
-        }
-      });
-    }
-
-    $('#query').on('keydown', function(e) {
-      var keyCode = e.which;
-      if (keyCode === 13) { // Enter Key
-        search($('#query').val());
-      }
-    });
-    $('#submit').on('click', function(e) {
-      e.preventDefault();
-      search($('#query').val());
-    });
-
-    var map = new naver.maps.Map('map', {
-      center: new naver.maps.Point(316281, 545370),
-      zoom: 11,
-      mapTypes: new naver.maps.MapTypeRegistry({
-        'normal': naver.maps.NaverMapTypeOption.getNormalMap({
-          projection: naver.maps.TM128Coord
-        }),
-        'terrain': naver.maps.NaverMapTypeOption.getTerrainMap({
-          projection: naver.maps.TM128Coord
-        }),
-        'satellite': naver.maps.NaverMapTypeOption.getSatelliteMap({
-          projection: naver.maps.TM128Coord
-        }),
-        'hybrid': naver.maps.NaverMapTypeOption.getHybridMap({
-          projection: naver.maps.TM128Coord
-        })
-      }),
-      mapTypeId: naver.maps.MapTypeId.TERRAIN
-    });
-
-    var infowindow = new naver.maps.InfoWindow();
-
-});
-</script>
-{% endblock %}
-
 {% block content %}
-<style type="text/css">
-  .search { position:absolute;z-index:1000;top:20px;left:20px; }
-  .search #query { width:150px;height:20px;line-height:20px;border:solid 1px #555;padding:5px;font-size:12px;box-sizing:content-box; }
-  .search #submit { height:30px;line-height:30px;padding:0 10px;font-size:12px;border:solid 1px #555;border-radius:3px;cursor:pointer;box-sizing:content-box; }
-</style>
-<div id="map" style="width:100%;height:600px;">
-  <div class="search" style="">
-    <input id="query" type="text" placeholder="검색어" />
-    <input id="submit" type="button" value="검색" />
-  </div>
-</div>
-<div id="result">
-</div>
 <div>
   {% for blog in blogs %}
   <div><a href="{{ blog.url }}">{{ blog.name }}</a></div>
+  {% endfor %}
+  {% for place in places %}
+  <div>{{ place.name }}{{ place.phone }}{{ place.address }}</div>
   {% endfor %}
 </div>
 {% endblock %}

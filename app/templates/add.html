@@ -1,15 +1,141 @@
 {% extends "base.html" %}
 
+{% block head %}
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
+<script type="text/javascript">
+
+  $(function() {
+    var items;
+    function fillForm(item) {
+      $("#name").val($('<i>'+item.title+'</i>').text())
+      $("#phone").val(item.telephone)
+      $("#address").val(item.roadAddress)
+      $("#category").val(item.category)
+      $("#x").val(item.mapx)
+      $("#y").val(item.mapy)
+    }
+    function moveMap(item) {
+      var center = new naver.maps.Point(item.mapx, item.mapy);
+      map.setCenter(center);
+      infowindow.setContent('<div style="padding:20px;">' + item.title + '</div>');
+      infowindow.open(map, center);
+    }
+    function select(itemId) {
+      fillForm(items[itemId]);
+      moveMap(items[itemId]);
+    }
+    function search(query) {
+      $.getJSON("{{url_for('search')}}",{
+        query: query,
+      }, function(data) {
+        items = data.items;
+
+        var html = "";
+        for(var i = 0; i < items.length; i++){
+          var item = items[i];
+          html += "<div item-id=" + i + ">";
+          html += "<a>" + item.title + "</a><small>" + item.roadAddress + "</small>"
+          html += "</div>";
+        }
+        $('#search-result').html(html);
+        $('#search-result>div>a').on('click', function(e) {
+          e.preventDefault();
+          select($(this).parent().attr("item-id"));
+        });
+        if(items.length > 0){
+          select(0);
+        }
+      });
+    }
+
+    $('#query').on('keydown', function(e) {
+      var keyCode = e.which;
+      if (keyCode === 13) { // Enter Key
+        search($('#query').val());
+      }
+    });
+    $('#submit').on('click', function(e) {
+      e.preventDefault();
+      search($('#query').val());
+    });
+
+    var map = new naver.maps.Map('map', {
+      center: new naver.maps.Point(316281, 545370),
+      zoom: 11,
+      mapTypes: new naver.maps.MapTypeRegistry({
+        'normal': naver.maps.NaverMapTypeOption.getNormalMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'terrain': naver.maps.NaverMapTypeOption.getTerrainMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'satellite': naver.maps.NaverMapTypeOption.getSatelliteMap({
+          projection: naver.maps.TM128Coord
+        }),
+        'hybrid': naver.maps.NaverMapTypeOption.getHybridMap({
+          projection: naver.maps.TM128Coord
+        })
+      }),
+      mapTypeId: naver.maps.MapTypeId.TERRAIN
+    });
+
+    var infowindow = new naver.maps.InfoWindow();
+
+});
+</script>
+{% endblock %}
+
 {% block content %}
 <form action="{{ url_for('add') }}" method="POST">
-  {{ form.hidden_tag() }}
+  {{ forms['place'].hidden_tag() }}
   <div class="form-group">
-    {{ form.name.label(class_="sr-only") }}
-    {{ form.name(class_="form-control", placeholder="이름") }}
+    {{ forms['place'].name.label(class_="sr-only") }}
+    {{ forms['place'].name(class_="form-control", placeholder="이름") }}
   </div>
   <div class="form-group">
-    {{ form.url.label(class_="sr-only") }}
-    {{ form.url(class_="form-control", placeholder="URL") }}
+    {{ forms['place'].phone.label(class_="sr-only") }}
+    {{ forms['place'].phone(class_="form-control", placeholder="전화") }}
+  </div>
+  <div class="form-group">
+    {{ forms['place'].address.label(class_="sr-only") }}
+    {{ forms['place'].address(class_="form-control", placeholder="주소") }}
+  </div>
+  <div class="form-group">
+    {{ forms['place'].category.label(class_="sr-only") }}
+    {{ forms['place'].category(class_="form-control", placeholder="분류") }}
+  </div>
+  <div class="form-group">
+    {{ forms['place'].x.label(class_="sr-only") }}
+    {{ forms['place'].x(class_="form-control", placeholder="x좌표") }}
+  </div>
+  <div class="form-group">
+    {{ forms['place'].y.label(class_="sr-only") }}
+    {{ forms['place'].y(class_="form-control", placeholder="y좌표") }}
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Add</button>
+</form>
+<style type="text/css">
+  .search { position:absolute;z-index:1000;top:20px;left:20px; }
+  .search #query { width:150px;height:20px;line-height:20px;border:solid 1px #555;padding:5px;font-size:12px;box-sizing:content-box; }
+  .search #submit { height:30px;line-height:30px;padding:0 10px;font-size:12px;border:solid 1px #555;border-radius:3px;cursor:pointer;box-sizing:content-box; }
+</style>
+<div id="map" style="width:100%;height:500px;">
+  <div class="search" style="">
+    <input id="query" type="text" placeholder="검색어" />
+    <input id="submit" type="button" value="검색" />
+  </div>
+</div>
+<div id="search-result">
+</div>
+<form action="{{ url_for('add') }}" method="POST">
+  {{ forms['blog'].hidden_tag() }}
+  <div class="form-group">
+    {{ forms['blog'].blog_name.label(class_="sr-only") }}
+    {{ forms['blog'].blog_name(class_="form-control", placeholder="이름") }}
+  </div>
+  <div class="form-group">
+    {{ forms['blog'].url.label(class_="sr-only") }}
+    {{ forms['blog'].url(class_="form-control", placeholder="URL") }}
   </div>
   <button type="submit" class="btn btn-primary btn-block">Add</button>
 </form>
