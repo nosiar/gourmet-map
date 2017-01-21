@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, jsonify
 from . import app, db
 from .models import Blog, Place, Category
 from .forms import BlogAddForm, PlaceAddForm
@@ -55,6 +55,18 @@ def delete(id):
         db.session.commit()
 
     return redirect(redirect_to)
+
+
+@app.route('/json/places')
+def get_places():
+    x_min = request.args.get('xmin') or ''
+    x_max = request.args.get('xmax') or ''
+    y_min = request.args.get('ymin') or ''
+    y_max = request.args.get('ymax') or ''
+    places = Place.query.all()
+    #places = Place.query.filter(x_min <= Place.x and Place.x <= x_max and
+    #                            y_min <= Place.y and Place.y <= y_max).all()
+    return jsonify(data=[p.serialize for p in places])
 
 
 @app.route('/search')

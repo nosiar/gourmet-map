@@ -34,6 +34,18 @@ class Place(db.Model):
     def __repr__(self):
         return '<Place {}>'.format(self.name)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'phone': self.phone,
+            'address': self.address,
+            'x': self.x,
+            'y': self.y,
+            'category': self.category.name
+        }
+
 
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
