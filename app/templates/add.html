@@ -7,12 +7,12 @@
   $(function() {
     var items;
     function fillForm(item) {
-      $("#name").val($('<i>'+item.title+'</i>').text())
-      $("#phone").val(item.telephone)
-      $("#address").val(item.roadAddress)
-      $("#category").val(item.category)
-      $("#x").val(item.mapx)
-      $("#y").val(item.mapy)
+      $("#name").val($('<i>'+item.title+'</i>').text());
+      $("#phone").val(item.telephone);
+      $("#address").val(item.roadAddress);
+      $("#category").val(item.category);
+      $("#x").val(item.mapx);
+      $("#y").val(item.mapy);
     }
     function moveMap(item) {
       var center = new naver.maps.Point(item.mapx, item.mapy);
@@ -33,9 +33,11 @@
         var html = "";
         for(var i = 0; i < items.length; i++){
           var item = items[i];
-          html += "<div item-id=" + i + ">";
-          html += "<a>" + item.title + "</a><small>" + item.roadAddress + "</small>"
-          html += "</div>";
+          html += [
+            "<div item-id=" + i + ">",
+            "<a>" + item.title + "</a><small>" + item.roadAddress + "</small>",
+            "</div>"
+          ].join('');
         }
         $('#search-result').html(html);
         $('#search-result>div>a').on('click', function(e) {
