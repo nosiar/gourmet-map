@@ -1,9 +1,9 @@
 from flask import render_template, request, redirect, url_for, jsonify
-from sqlalchemy import desc
 from . import app, db
 from .models import Blog, Place, Category
 from .forms import BlogAddForm, PlaceAddForm
 import requests
+import feedparser
 
 
 @app.route('/')
@@ -22,7 +22,9 @@ def list():
 def add():
     forms = {'blog': BlogAddForm(), 'place': PlaceAddForm()}
     if forms['blog'].validate_on_submit():
-        b = Blog(forms['blog'].blog_name.data, forms['blog'].url.data)
+        rss = forms['blog'].rss.data
+        f = feedparser.parse(rss)
+        b = Blog(f.feed.title, f.feed.link, rss)
         db.session.add(b)
         db.session.commit()
         return redirect(url_for('add'))

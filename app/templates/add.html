@@ -132,12 +132,8 @@
 <form action="{{ url_for('add') }}" method="POST">
   {{ forms['blog'].hidden_tag() }}
   <div class="form-group">
-    {{ forms['blog'].blog_name.label(class_="sr-only") }}
-    {{ forms['blog'].blog_name(class_="form-control", placeholder="이름") }}
-  </div>
-  <div class="form-group">
-    {{ forms['blog'].url.label(class_="sr-only") }}
-    {{ forms['blog'].url(class_="form-control", placeholder="URL") }}
+    {{ forms['blog'].rss.label(class_="sr-only") }}
+    {{ forms['blog'].rss(class_="form-control", placeholder="RSS") }}
   </div>
   <button type="submit" class="btn btn-primary btn-block">Add</button>
 </form>

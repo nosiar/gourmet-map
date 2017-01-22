@@ -4,8 +4,7 @@ from wtforms.validators import InputRequired
 
 
 class BlogAddForm(FlaskForm):
-    blog_name = StringField('Name', validators=[InputRequired()])
-    url = StringField('URL', validators=[InputRequired()])
+    rss = StringField('RSS', validators=[InputRequired()])
 
 
 class PlaceAddForm(FlaskForm):
