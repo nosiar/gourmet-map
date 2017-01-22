@@ -56,10 +56,12 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     url = db.Column(db.String(50))
+    rss = db.Column(db.String(50))
 
-    def __init__(self, name, url):
+    def __init__(self, name, url, rss):
         self.name = name
         self.url = url
+        self.rss = rss
 
     def __repr__(self):
         return '<Blog {}>'.format(self.name)
