@@ -4,6 +4,7 @@ from .models import Blog, Place, Category
 from .forms import BlogAddForm, PlaceAddForm
 import requests
 import feedparser
+from datetime import datetime
 
 
 @app.route('/')
@@ -16,6 +17,17 @@ def list():
     blogs = Blog.query.all()
     places = Place.query.all()
     return render_template('list.html', blogs=blogs, places=places)
+
+
+@app.route('/posts')
+def posts():
+    ee = [feedparser.parse(x.rss).entries for x in Blog.query.all()]
+    entries = [e for entries in ee for e in entries]
+    for e in entries:
+        e.published_datetime = datetime.strptime(e.published,
+                                                 '%a, %d %b %Y %H:%M:%S %z')
+    entries.sort(key=lambda e: e.published_datetime, reverse=True)
+    return render_template('posts.html', entries=entries)
 
 
 @app.route('/add', methods=['GET', 'POST'])

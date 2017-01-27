@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+  {% for e in entries %}
+  <div><a href="{{ e.link }}">{{ e.title }}</a> <small>{{ e.published_datetime.strftime('%Y-%m-%d %H:%M')}}</small></div>
+  {% endfor %}
+</div>
+{% endblock %}
