@@ -1,9 +1,51 @@
 {% extends "base.html" %}
 
+{% block head %}
+<script type="text/javascript">
+  $( window ).resize(function() {
+    $(".affix").width($(".col-md-6").width());
+  });
+  $(function() {
+    $(".affix").width($(".col-md-6").width());
+    $(".post>a").click(function() {
+      $("#subject").val($(this).text());
+      $("#url").val($(this).attr("href"));
+      $("#blog_id").val($(this).parent().attr("blog-id"));
+    });
+  });
+</script>
+{% endblock %}
 {% block content %}
-<div>
-  {% for e in entries %}
-  <div><a href="{{ e.link }}">{{ e.title }}</a> <small>{{ e.published_datetime.strftime('%Y-%m-%d %H:%M')}}</small></div>
-  {% endfor %}
+<div class="row">
+  <div class="col-md-6">
+    <form action="{{ url_for('posts') }}" method="POST" class="affix">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.subject.label(class_="sr-only") }}
+        {{ form.subject(class_="form-control", placeholder="제목") }}
+      </div>
+      <div class="form-group">
+        {{ form.url.label(class_="sr-only") }}
+        {{ form.url(class_="form-control", placeholder="URL") }}
+      </div>
+      <div class="form-group">
+        {{ form.blog_id.label(class_="sr-only") }}
+        {{ form.blog_id(class_="form-control") }}
+      </div>
+      <div class="form-group">
+        {{ form.place_id.label(class_="sr-only") }}
+        {{ form.place_id(class_="form-control") }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Add</button>
+    </form>
+  </div>
+  <div class="col-md-6">
+    {% for e in entries %}
+    <div class="post" blog-id="{{ e.blog_id }}">
+      <a href="{{ e.link }}" target="_blank">{{ e.title }}</a>
+      <small>{{ e.pub_datetime.strftime('%Y-%m-%d %H:%M')}}</small>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

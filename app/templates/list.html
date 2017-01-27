@@ -6,7 +6,13 @@
   <div><a href="{{ blog.url }}">{{ blog.name }}</a></div>
   {% endfor %}
   {% for place in places %}
-  <div>{{ place.name }}{{ place.phone }}{{ place.address }}<a href="{{ url_for('delete', id=place.id) }}">Del</a></div>
+  <div>{{ place.name }}{{ place.phone }}{{ place.address }}<a href="{{ url_for('delete', place_id=place.id) }}">Del</a></div>
+  {% endfor %}
+  {% for post in posts %}
+  <div>
+    <a href="{{ post.url }}">{{ post.subject }}</a>
+    <a href="{{ url_for('delete', post_id=post.id) }}">Del</a>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}

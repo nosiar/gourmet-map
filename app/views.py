@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, jsonify
 from . import app, db
-from .models import Blog, Place, Category
-from .forms import BlogAddForm, PlaceAddForm
+from .models import Blog, Place, Category, Post
+from .forms import BlogAddForm, PlaceAddForm, PostAddForm
 import requests
 import feedparser
 from datetime import datetime
@@ -16,18 +16,37 @@ def index():
 def list():
     blogs = Blog.query.all()
     places = Place.query.all()
-    return render_template('list.html', blogs=blogs, places=places)
+    posts = Post.query.all()
+    return render_template('list.html', blogs=blogs, places=places,
+                           posts=posts)
 
 
-@app.route('/posts')
+@app.route('/posts', methods=['GET', 'POST'])
 def posts():
-    ee = [feedparser.parse(x.rss).entries for x in Blog.query.all()]
-    entries = [e for entries in ee for e in entries]
-    for e in entries:
-        e.published_datetime = datetime.strptime(e.published,
-                                                 '%a, %d %b %Y %H:%M:%S %z')
-    entries.sort(key=lambda e: e.published_datetime, reverse=True)
-    return render_template('posts.html', entries=entries)
+    form = PostAddForm()
+    form.place_id.choices = [(p.id, p.name) for p in Place.query.order_by('name')]
+
+    if form.validate_on_submit():
+        b = Blog.query.get(form.blog_id.data)
+        p = Place.query.get(form.place_id.data)
+        Post(form.subject.data, form.url.data, b, p)
+        db.session.add(b)
+        db.session.commit()
+        return redirect(url_for('posts'))
+
+    blogs = Blog.query.all()
+    entries = []
+    for b in blogs:
+        sub_entries = feedparser.parse(b.rss).entries
+        for e in sub_entries:
+            e.blog_id = b.id
+            e.pub_datetime = datetime.strptime(e.published,
+                                               '%a, %d %b %Y %H:%M:%S %z')
+        entries.extend(sub_entries)
+    entries.sort(key=lambda e: e.pub_datetime, reverse=True)
+
+
+    return render_template('posts.html', entries=entries, form=form)
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -55,19 +74,31 @@ def add():
     return render_template('add.html', forms=forms)
 
 
-@app.route('/delete/<id>')
-def delete(id):
+@app.route('/delete/place/<place_id>')
+@app.route('/delete/post/<post_id>')
+def delete(place_id=None, post_id=None):
     redirect_to = request.referrer or url_for('index')
 
-    try:
-        id = int(id)
-    except ValueError:
-        return redirect(redirect_to)
+    if place_id is not None:
+        try:
+            id = int(place_id)
+        except ValueError:
+            return redirect(redirect_to)
 
-    p = Place.query.get(id)
-    if p is not None:
-        db.session.delete(p)
-        db.session.commit()
+        p = Place.query.get(id)
+        if p is not None:
+            db.session.delete(p)
+            db.session.commit()
+    elif post_id is not None:
+        try:
+            id = int(post_id)
+        except ValueError:
+            return redirect(redirect_to)
+
+        p = Post.query.get(id)
+        if p is not None:
+            db.session.delete(p)
+            db.session.commit()
 
     return redirect(redirect_to)
 
