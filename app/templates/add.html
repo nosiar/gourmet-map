@@ -3,8 +3,17 @@
 {% block head %}
 <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=fsTvRBUeUiobhQZtiWzE&submodules=geocoder"></script>
 <script type="text/javascript">
-
+  $( window ).resize(function() {
+    $(".affix").width($(".col-md-6").width());
+  });
   $(function() {
+    $(".affix").width($(".col-md-6").width());
+    $(".post>a").click(function() {
+      $("#subject").val($(this).text());
+      $("#url").val($(this).attr("href"));
+      $("#blog_id").val($(this).parent().attr("blog-id"));
+    });
+
     var items;
     function fillForm(item) {
       $("#name").val($('<i>'+item.title+'</i>').text());
@@ -82,59 +91,89 @@
     });
 
     var infowindow = new naver.maps.InfoWindow();
-
-});
+  });
 </script>
 {% endblock %}
-
 {% block content %}
-<form action="{{ url_for('add') }}" method="POST">
-  {{ forms['place'].hidden_tag() }}
-  <div class="form-group">
-    {{ forms['place'].name.label(class_="sr-only") }}
-    {{ forms['place'].name(class_="form-control", placeholder="이름") }}
+<div class="row">
+  <div class="col-md-6">
+    <form action="{{ url_for('add') }}" method="POST">
+      {{ forms['post'].hidden_tag() }}
+      <div class="form-group">
+        {{ forms['post'].subject.label(class_="sr-only") }}
+        {{ forms['post'].subject(class_="form-control", placeholder="제목") }}
+      </div>
+      <div class="form-group">
+        {{ forms['post'].url.label(class_="sr-only") }}
+        {{ forms['post'].url(class_="form-control", placeholder="URL") }}
+      </div>
+      <div class="form-group">
+        {{ forms['post'].blog_id.label(class_="sr-only") }}
+        {{ forms['post'].blog_id(class_="form-control") }}
+      </div>
+      <div class="form-group">
+        {{ forms['post'].place_id.label(class_="sr-only") }}
+        {{ forms['post'].place_id(class_="form-control") }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Add</button>
+    </form>
+    <form action="{{ url_for('add') }}" method="POST">
+      {{ forms['place'].hidden_tag() }}
+      <div class="form-group">
+        {{ forms['place'].name.label(class_="sr-only") }}
+        {{ forms['place'].name(class_="form-control", placeholder="이름") }}
+      </div>
+      <div class="form-group">
+        {{ forms['place'].phone.label(class_="sr-only") }}
+        {{ forms['place'].phone(class_="form-control", placeholder="전화") }}
+      </div>
+      <div class="form-group">
+        {{ forms['place'].address.label(class_="sr-only") }}
+        {{ forms['place'].address(class_="form-control", placeholder="주소") }}
+      </div>
+      <div class="form-group">
+        {{ forms['place'].category.label(class_="sr-only") }}
+        {{ forms['place'].category(class_="form-control", placeholder="분류") }}
+      </div>
+      <div class="form-group">
+        {{ forms['place'].x.label(class_="sr-only") }}
+        {{ forms['place'].x(class_="form-control", placeholder="x좌표") }}
+      </div>
+      <div class="form-group">
+        {{ forms['place'].y.label(class_="sr-only") }}
+        {{ forms['place'].y(class_="form-control", placeholder="y좌표") }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Add</button>
+    </form>
+    <style type="text/css">
+      .search { position:absolute;z-index:1000;top:20px;left:20px; }
+      .search #query { width:150px;height:20px;line-height:20px;border:solid 1px #555;padding:5px;font-size:12px;box-sizing:content-box; }
+      .search #submit { height:30px;line-height:30px;padding:0 10px;font-size:12px;border:solid 1px #555;border-radius:3px;cursor:pointer;box-sizing:content-box; }
+    </style>
+    <div id="map" style="width:100%;height:500px;">
+      <div class="search" style="">
+        <input id="query" type="text" placeholder="검색어" />
+        <input id="submit" type="button" value="검색" />
+      </div>
+    </div>
+    <div id="search-result">
+    </div>
+    <form action="{{ url_for('add') }}" method="POST">
+      {{ forms['blog'].hidden_tag() }}
+      <div class="form-group">
+        {{ forms['blog'].rss.label(class_="sr-only") }}
+        {{ forms['blog'].rss(class_="form-control", placeholder="RSS") }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Add</button>
+    </form>
   </div>
-  <div class="form-group">
-    {{ forms['place'].phone.label(class_="sr-only") }}
-    {{ forms['place'].phone(class_="form-control", placeholder="전화") }}
-  </div>
-  <div class="form-group">
-    {{ forms['place'].address.label(class_="sr-only") }}
-    {{ forms['place'].address(class_="form-control", placeholder="주소") }}
-  </div>
-  <div class="form-group">
-    {{ forms['place'].category.label(class_="sr-only") }}
-    {{ forms['place'].category(class_="form-control", placeholder="분류") }}
-  </div>
-  <div class="form-group">
-    {{ forms['place'].x.label(class_="sr-only") }}
-    {{ forms['place'].x(class_="form-control", placeholder="x좌표") }}
-  </div>
-  <div class="form-group">
-    {{ forms['place'].y.label(class_="sr-only") }}
-    {{ forms['place'].y(class_="form-control", placeholder="y좌표") }}
-  </div>
-  <button type="submit" class="btn btn-primary btn-block">Add</button>
-</form>
-<style type="text/css">
-  .search { position:absolute;z-index:1000;top:20px;left:20px; }
-  .search #query { width:150px;height:20px;line-height:20px;border:solid 1px #555;padding:5px;font-size:12px;box-sizing:content-box; }
-  .search #submit { height:30px;line-height:30px;padding:0 10px;font-size:12px;border:solid 1px #555;border-radius:3px;cursor:pointer;box-sizing:content-box; }
-</style>
-<div id="map" style="width:100%;height:500px;">
-  <div class="search" style="">
-    <input id="query" type="text" placeholder="검색어" />
-    <input id="submit" type="button" value="검색" />
+  <div class="col-md-6">
+    {% for e in entries %}
+    <div class="post" blog-id="{{ e.blog_id }}">
+      <a href="{{ e.link }}" target="_blank">{{ e.title }}</a>
+      <small>{{ e.pub_datetime.strftime('%Y-%m-%d %H:%M')}}</small>
+    </div>
+    {% endfor %}
   </div>
 </div>
-<div id="search-result">
-</div>
-<form action="{{ url_for('add') }}" method="POST">
-  {{ forms['blog'].hidden_tag() }}
-  <div class="form-group">
-    {{ forms['blog'].rss.label(class_="sr-only") }}
-    {{ forms['blog'].rss(class_="form-control", placeholder="RSS") }}
-  </div>
-  <button type="submit" class="btn btn-primary btn-block">Add</button>
-</form>
 {% endblock %}

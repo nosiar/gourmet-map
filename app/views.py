@@ -21,37 +21,14 @@ def list():
                            posts=posts)
 
 
-@app.route('/posts', methods=['GET', 'POST'])
-def posts():
-    form = PostAddForm()
-    form.place_id.choices = [(p.id, p.name) for p in Place.query.order_by('name')]
-
-    if form.validate_on_submit():
-        b = Blog.query.get(form.blog_id.data)
-        p = Place.query.get(form.place_id.data)
-        Post(form.subject.data, form.url.data, b, p)
-        db.session.add(b)
-        db.session.commit()
-        return redirect(url_for('posts'))
-
-    blogs = Blog.query.all()
-    entries = []
-    for b in blogs:
-        sub_entries = feedparser.parse(b.rss).entries
-        for e in sub_entries:
-            e.blog_id = b.id
-            e.pub_datetime = datetime.strptime(e.published,
-                                               '%a, %d %b %Y %H:%M:%S %z')
-        entries.extend(sub_entries)
-    entries.sort(key=lambda e: e.pub_datetime, reverse=True)
-
-
-    return render_template('posts.html', entries=entries, form=form)
-
-
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    forms = {'blog': BlogAddForm(), 'place': PlaceAddForm()}
+    forms = {'blog': BlogAddForm(),
+             'place': PlaceAddForm(),
+             'post': PostAddForm()}
+    forms['post'].place_id.choices = [(p.id, p.name)
+                                      for p in Place.query.order_by('name')]
+
     if forms['blog'].validate_on_submit():
         rss = forms['blog'].rss.data
         f = feedparser.parse(rss)
@@ -71,7 +48,27 @@ def add():
         db.session.add(p)
         db.session.commit()
         return redirect(url_for('add'))
-    return render_template('add.html', forms=forms)
+    elif forms['post'].validate_on_submit():
+        form = forms['post']
+        b = Blog.query.get(form.blog_id.data)
+        p = Place.query.get(form.place_id.data)
+        Post(form.subject.data, form.url.data, b, p)
+        db.session.add(b)
+        db.session.commit()
+        return redirect(url_for('add'))
+
+    blogs = Blog.query.all()
+    entries = []
+    for b in blogs:
+        sub_entries = feedparser.parse(b.rss).entries
+        for e in sub_entries:
+            e.blog_id = b.id
+            e.pub_datetime = datetime.strptime(e.published,
+                                               '%a, %d %b %Y %H:%M:%S %z')
+        entries.extend(sub_entries)
+    entries.sort(key=lambda e: e.pub_datetime, reverse=True)
+
+    return render_template('add.html', entries=entries, forms=forms)
 
 
 @app.route('/delete/place/<place_id>')
