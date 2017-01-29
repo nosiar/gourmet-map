@@ -114,6 +114,13 @@ def get_places():
     return jsonify(data=[p.serialize for p in places])
 
 
+@app.route('/json/posts')
+def get_posts():
+    place_id = request.args.get('place_id') or ''
+    posts = Post.query.filter_by(place_id=place_id).all()
+    return jsonify(data=[p.serialize for p in posts])
+
+
 @app.route('/search')
 def search():
     client_id = 'WuHk4eJpsqDQ5tLWjYbi'

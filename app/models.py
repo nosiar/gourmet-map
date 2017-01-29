@@ -86,3 +86,11 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.subject)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'subject': self.subject,
+            'url': self.url,
+        }

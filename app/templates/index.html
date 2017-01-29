@@ -61,7 +61,7 @@
 $(function() {
   var map = new naver.maps.Map('map', {
     center: new naver.maps.Point(316281, 545370),
-    zoom: 11,
+    zoom: 10,
     mapTypes: new naver.maps.MapTypeRegistry({
       'normal': naver.maps.NaverMapTypeOption.getNormalMap({
         projection: naver.maps.TM128Coord
@@ -118,9 +118,6 @@ $(function() {
     err("Geolocation failed!");
   }
 
-  var markerIconPosition = {
-  };
-
   var markerList = [];
 
   function addMarker(place, x, y) {
@@ -142,8 +139,8 @@ $(function() {
   }
 
   function addPlace(place, x, y, i) {
-    var p = $('<button id="place' + i + '" class="place btn btn-default"><p>' + place.name + '</p></button>');
-    $("#list").append(p);
+    var p = $('<button id="place' + i + '" place-id="' + place.id +'" class="place btn btn-default"><p>' + place.name + '</p></button>');
+    $("#places").append(p);
   }
 
   function getPlaces(bounds) {
@@ -169,6 +166,21 @@ $(function() {
         addMarker(places[i], x, y);
         addPlace(places[i], x, y, i);
       }
+
+      $(".place").click(function() {
+        var placeId = $(this).attr("place-id");
+        $.getJSON("{{url_for('get_posts')}}", {
+          place_id: placeId
+        }, function(data) {
+          var posts = data.data
+          $("#posts").empty();
+          for (var i = 0; i < posts.length; i++) {
+            var p = $('<div><a href="' + posts[i].url + '" target="_blank">' + posts[i].subject + '</a></div>');
+            $("#posts").append(p);
+          }
+        });
+      });
+
     });
   }
 
@@ -204,6 +216,8 @@ $(function() {
 {% endblock %}
 {% block content %}
 <div id="map" style="width:100%;"></div>
-<div id="list">
+<div id="places">
+</div>
+<div id="posts">
 </div>
 {% endblock %}
