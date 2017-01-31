@@ -54,9 +54,9 @@ class Place(db.Model):
 
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    url = db.Column(db.String(50))
-    rss = db.Column(db.String(50))
+    name = db.Column(db.String(50), unique=True)
+    url = db.Column(db.String(50), unique=True)
+    rss = db.Column(db.String(50), unique=True)
 
     def __init__(self, name, url, rss):
         self.name = name
@@ -70,7 +70,7 @@ class Blog(db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(50))
-    url = db.Column(db.String(50))
+    url = db.Column(db.String(50), unique=True)
     blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
     blog = db.relationship('Blog',
                            backref=db.backref('posts', lazy='dynamic'))
