@@ -171,7 +171,7 @@
     {% for e in entries %}
     <div class="post" blog-id="{{ e.blog_id }}">
       <a href="{{ e.link }}" target="_blank">{{ e.title }}</a>
-      <small>{{ e.pub_datetime.strftime('%Y-%m-%d %H:%M')}}</small>
+      <small>{{ e.published }}</small>
     </div>
     {% endfor %}
   </div>

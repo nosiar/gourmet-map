@@ -5,6 +5,7 @@ from .forms import BlogAddForm, PlaceAddForm, PostAddForm
 import requests
 import feedparser
 from datetime import datetime
+import time
 
 
 @app.route('/')
@@ -21,6 +22,12 @@ def list():
                            posts=posts)
 
 
+def parse(rss):
+    if 'egloos' in rss:
+        rss = requests.get(rss).text
+    return feedparser.parse(rss)
+
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     forms = {'blog': BlogAddForm(),
@@ -31,7 +38,7 @@ def add():
 
     if forms['blog'].validate_on_submit():
         rss = forms['blog'].rss.data
-        f = feedparser.parse(rss)
+        f = parse(rss)
         b = Blog(f.feed.title, f.feed.link, rss)
         db.session.add(b)
         db.session.commit()
@@ -60,13 +67,12 @@ def add():
     blogs = Blog.query.all()
     entries = []
     for b in blogs:
-        sub_entries = feedparser.parse(b.rss).entries
+        sub_entries = parse(b.rss).entries
         for e in sub_entries:
             e.blog_id = b.id
-            e.pub_datetime = datetime.strptime(e.published,
-                                               '%a, %d %b %Y %H:%M:%S %z')
+            e.published = time.strftime('%Y-%m-%d %H:%M', e.published_parsed)
         entries.extend(sub_entries)
-    entries.sort(key=lambda e: e.pub_datetime, reverse=True)
+    entries.sort(key=lambda e: e.published_parsed, reverse=True)
 
     return render_template('add.html', entries=entries, forms=forms)
 
