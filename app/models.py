@@ -67,11 +67,22 @@ class Blog(db.Model):
         return '<Blog {}>'.format(self.name)
 
 
-class Post(db.Model):
+class PostCandidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(50))
     url = db.Column(db.String(50), unique=True)
     blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
+
+    def __init__(self, subject, url, blog_id, place):
+        self.subject = subject
+        self.url = url
+        self.blog_id = blog_id
+
+    def __repr__(self):
+        return '<PostCandidate {}>'.format(self.subject)
+
+
+class Post(PostCandidate):
     blog = db.relationship('Blog',
                            backref=db.backref('posts', lazy='dynamic'))
     place_id = db.Column(db.Integer, db.ForeignKey('place.id'))
@@ -94,3 +105,5 @@ class Post(db.Model):
             'subject': self.subject,
             'url': self.url,
         }
+
+
