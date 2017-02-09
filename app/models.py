@@ -107,3 +107,9 @@ class Post(PostCandidate):
         }
 
 
+class LastRead(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime)
+
+    def __init__(self):
+        self.date = datetime.min
