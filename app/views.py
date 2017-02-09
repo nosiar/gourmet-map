@@ -1,11 +1,12 @@
 from flask import render_template, request, redirect, url_for, jsonify
+from sqlalchemy import desc
 from . import app, db
-from .models import Blog, Place, Category, Post
+from .models import Blog, Place, Category, Post, PostCandidate, LastRead
 from .forms import BlogAddForm, PlaceAddForm, PostAddForm
 import requests
 import feedparser
 from datetime import datetime
-import time
+from time import mktime
 
 
 @app.route('/')
@@ -26,6 +27,18 @@ def parse(rss):
     if 'egloos' in rss:
         rss = requests.get(rss).text
     return feedparser.parse(rss)
+
+
+# TODO: Add only new posts
+def add_post_candidates():
+    blogs = Blog.query.all()
+    for b in blogs:
+        sub_entries = parse(b.rss).entries
+        for e in sub_entries:
+            date = datetime.fromtimestamp(mktime(e.published_parsed))
+            p = PostCandidate(e.title, e.link, date, b.id)
+            db.session.add(p)
+    db.session.commit()
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -64,17 +77,19 @@ def add():
         db.session.commit()
         return redirect(url_for('add'))
 
-    blogs = Blog.query.all()
-    entries = []
-    for b in blogs:
-        sub_entries = parse(b.rss).entries
-        for e in sub_entries:
-            e.blog_id = b.id
-            e.published = time.strftime('%Y-%m-%d %H:%M', e.published_parsed)
-        entries.extend(sub_entries)
-    entries.sort(key=lambda e: e.published_parsed, reverse=True)
+    last_read = LastRead.query.first()
+    if last_read is None:
+        last_read = LastRead()
+        db.session.add(last_read)
+        db.session.commit()
 
-    return render_template('add.html', entries=entries, forms=forms)
+    day_diff = (datetime.now() - last_read.date).days
+    if day_diff > 0:
+        add_post_candidates()
+
+    posts = PostCandidate.query.order_by(desc(PostCandidate.date)).all()
+
+    return render_template('add.html', posts=posts, forms=forms)
 
 
 @app.route('/delete/place/<place_id>')

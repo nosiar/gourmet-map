@@ -168,10 +168,10 @@
     </form>
   </div>
   <div class="col-md-6">
-    {% for e in entries %}
-    <div class="post" blog-id="{{ e.blog_id }}">
-      <a href="{{ e.link }}" target="_blank">{{ e.title }}</a>
-      <small>{{ e.published }}</small>
+    {% for p in posts %}
+    <div class="post" blog-id="{{ p.blog_id }}">
+      <a href="{{ p.url }}" target="_blank">{{ p.subject }}</a>
+      <small>{{ p.date.strftime('%Y-%m-%d %H:%M') }}</small>
     </div>
     {% endfor %}
   </div>
