@@ -1,4 +1,5 @@
 from sqlalchemy.ext.hybrid import hybrid_method
+from datetime import datetime
 from . import db
 
 
@@ -71,11 +72,13 @@ class PostCandidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(50))
     url = db.Column(db.String(50), unique=True)
+    date = db.Column(db.DateTime)
     blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
 
-    def __init__(self, subject, url, blog_id, place):
+    def __init__(self, subject, url, date, blog_id):
         self.subject = subject
         self.url = url
+        self.date = date
         self.blog_id = blog_id
 
     def __repr__(self):
@@ -89,9 +92,10 @@ class Post(PostCandidate):
     place = db.relationship('Place',
                             backref=db.backref('posts', lazy='dynamic'))
 
-    def __init__(self, subject, url, blog, place):
+    def __init__(self, subject, url, date, blog, place):
         self.subject = subject
         self.url = url
+        self.date = date
         self.blog = blog
         self.place = place
 
