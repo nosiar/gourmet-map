@@ -29,6 +29,14 @@ def parse(rss):
     return feedparser.parse(rss)
 
 
+def filter(subject):
+    exclude = ['후쿠오카', '성수동', 'Domaine']
+    for e in exclude:
+        if e in subject:
+            return False
+    return True
+
+
 def add_post_candidates():
     blogs = Blog.query.all()
     for b in blogs:
@@ -43,9 +51,12 @@ def add_post_candidates():
 
         sub_entries = parse(b.rss).entries
         for e in sub_entries:
+
             date = datetime.fromtimestamp(mktime(e.published_parsed))
             if date < last_read.date:
                 break
+            if not filter(e.title):
+                continue
             p = PostCandidate(e.title, e.link, date, b.id)
             db.session.add(p)
         last_read.date = datetime.now()
