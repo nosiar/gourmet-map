@@ -29,15 +29,26 @@ def parse(rss):
     return feedparser.parse(rss)
 
 
-# TODO: Add only new posts
 def add_post_candidates():
     blogs = Blog.query.all()
     for b in blogs:
+        last_read = LastRead.query.filter_by(blog_id=b.id).first()
+        if last_read is None:
+            last_read = LastRead(b.id)
+            db.session.add(last_read)
+
+        day_diff = (datetime.now() - last_read.date).days
+        if day_diff == 0:
+            continue
+
         sub_entries = parse(b.rss).entries
         for e in sub_entries:
             date = datetime.fromtimestamp(mktime(e.published_parsed))
+            if date < last_read.date:
+                break
             p = PostCandidate(e.title, e.link, date, b.id)
             db.session.add(p)
+        last_read.date = datetime.now()
     db.session.commit()
 
 
@@ -77,15 +88,7 @@ def add():
         db.session.commit()
         return redirect(url_for('add'))
 
-    last_read = LastRead.query.first()
-    if last_read is None:
-        last_read = LastRead()
-        db.session.add(last_read)
-        db.session.commit()
-
-    day_diff = (datetime.now() - last_read.date).days
-    if day_diff > 0:
-        add_post_candidates()
+    add_post_candidates()
 
     posts = PostCandidate.query.order_by(desc(PostCandidate.date)).all()
 

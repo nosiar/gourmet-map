@@ -114,6 +114,8 @@ class Post(PostCandidate):
 class LastRead(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
+    blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
 
-    def __init__(self):
+    def __init__(self, blog_id):
         self.date = datetime.min
+        self.blog_id = blog_id
