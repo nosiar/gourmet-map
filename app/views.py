@@ -94,7 +94,8 @@ def add():
         form = forms['post']
         b = Blog.query.get(form.blog_id.data)
         p = Place.query.get(form.place_id.data)
-        Post(form.subject.data, form.url.data, b, p)
+        c = PostCandidate.query.filter_by(url=form.url.data).first()
+        Post(form.subject.data, form.url.data, c.date, b, p)
         db.session.add(b)
         db.session.commit()
         return redirect(url_for('add'))

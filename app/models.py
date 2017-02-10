@@ -85,7 +85,12 @@ class PostCandidate(db.Model):
         return '<PostCandidate {}>'.format(self.subject)
 
 
-class Post(PostCandidate):
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(50))
+    url = db.Column(db.String(50), unique=True)
+    date = db.Column(db.DateTime)
+    blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
     blog = db.relationship('Blog',
                            backref=db.backref('posts', lazy='dynamic'))
     place_id = db.Column(db.Integer, db.ForeignKey('place.id'))
