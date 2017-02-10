@@ -97,7 +97,8 @@ def add():
 
 @app.route('/delete/place/<place_id>')
 @app.route('/delete/post/<post_id>')
-def delete(place_id=None, post_id=None):
+@app.route('/delete/candidate/<candidate_id>')
+def delete(place_id=None, post_id=None, candidate_id=None):
     redirect_to = request.referrer or url_for('index')
 
     if place_id is not None:
@@ -117,6 +118,16 @@ def delete(place_id=None, post_id=None):
             return redirect(redirect_to)
 
         p = Post.query.get(id)
+        if p is not None:
+            db.session.delete(p)
+            db.session.commit()
+    elif candidate_id is not None:
+        try:
+            id = int(candidate_id)
+        except ValueError:
+            return redirect(redirect_to)
+
+        p = PostCandidate.query.get(id)
         if p is not None:
             db.session.delete(p)
             db.session.commit()

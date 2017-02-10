@@ -172,6 +172,7 @@
     <div class="post" blog-id="{{ p.blog_id }}">
       <a href="{{ p.url }}" target="_blank">{{ p.subject }}</a>
       <small>{{ p.date.strftime('%Y-%m-%d %H:%M') }}</small>
+      <a href="{{ url_for('delete', candidate_id=p.id) }}">Del</a>
     </div>
     {% endfor %}
   </div>
