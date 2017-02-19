@@ -74,6 +74,8 @@ class PostCandidate(db.Model):
     url = db.Column(db.String(50), unique=True)
     date = db.Column(db.DateTime)
     blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
+    blog = db.relationship('Blog',
+                           backref=db.backref('postcands', lazy='dynamic'))
 
     def __init__(self, subject, url, date, blog_id):
         self.subject = subject
