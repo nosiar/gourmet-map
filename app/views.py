@@ -5,7 +5,7 @@ from .models import Blog, Place, Category, Post, PostCandidate, LastRead
 from .forms import BlogAddForm, PlaceAddForm, PostAddForm
 import requests
 import feedparser
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 
 
@@ -51,8 +51,9 @@ def add_post_candidates():
 
         sub_entries = parse(b.rss).entries
         for e in sub_entries:
-
             date = datetime.fromtimestamp(mktime(e.published_parsed))
+            date = date.replace(tzinfo=timezone.utc).astimezone()
+            date = date.replace(tzinfo=None)
             if date < last_read.date:
                 break
             if not filter(e.title):
