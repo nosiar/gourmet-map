@@ -8,10 +8,10 @@
   });
   $(function() {
     $(".affix").width($(".col-md-6").width());
-    $(".post>a").click(function() {
+    $(".post-subject>a").click(function() {
       $("#subject").val($(this).text());
       $("#url").val($(this).attr("href"));
-      $("#blog_id").val($(this).parent().attr("blog-id"));
+      $("#blog_id").val($(this).parent().parent().attr("blog-id"));
     });
 
     var items;
