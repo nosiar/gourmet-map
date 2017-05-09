@@ -156,9 +156,9 @@ def get_places():
     y_max = request.args.get('yMax') or ''
     x_mine = request.args.get('xMine') or ''
     y_mine = request.args.get('yMine') or ''
-    places = Place.query.order_by(Place.dist(x_mine, y_mine)).all()
-    #places = Place.query.filter(x_min <= Place.x and Place.x <= x_max and
-    #                            y_min <= Place.y and Place.y <= y_max).all()
+    #places = Place.query.order_by(Place.dist(x_mine, y_mine)).all()
+    places = Place.query.filter((x_min <= Place.x) & (Place.x <= x_max) &
+                                (y_min <= Place.y) & (Place.y <= y_max)).all()
     return jsonify(data=[p.serialize for p in places])
 
 

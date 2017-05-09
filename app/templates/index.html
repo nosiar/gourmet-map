@@ -146,12 +146,17 @@ $(function() {
     $("#places").append(p);
   }
 
+  var running = false;
+
   function getPlaces(bounds) {
+    if(running) return;
+    running = true;
+
     var pMin = bounds.getMin();
     var pMax = bounds.getMax();
     $.getJSON("{{url_for('get_places')}}", {
       xMin: pMin.x,
-      xMin: pMin.y,
+      yMin: pMin.y,
       xMax: pMax.x,
       yMax: pMax.y,
       xMine: location.x,
@@ -163,6 +168,7 @@ $(function() {
         markerList[i].setMap(null);
       }
       markerList = [];
+      $("#places").empty()
 
       for (var i = 0; i < places.length; i++) {
         var x = i%10*29, y = Math.floor(i/10)*50;
@@ -183,7 +189,7 @@ $(function() {
           }
         });
       });
-
+      running = false;
     });
   }
 
@@ -208,11 +214,11 @@ $(function() {
   }
 
   naver.maps.Event.addListener(map, 'zoom_changed', function(zoom) {
-    //getPlaces(map.getBounds());
+    getPlaces(map.getBounds());
   });
 
   naver.maps.Event.addListener(map, 'bounds_changed', function(bounds) {
-    //getPlaces(bounds);
+    getPlaces(bounds);
   });
 });
 </script>
